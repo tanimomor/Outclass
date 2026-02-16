@@ -1,8 +1,8 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY ["src/Services/FileStorage/Outclass.FileStorage.API/Outclass.FileStorage.API.csproj", "src/Services/FileStorage/Outclass.FileStorage.API/"]
 COPY ["src/Services/FileStorage/Outclass.FileStorage.Infrastructure/Outclass.FileStorage.Infrastructure.csproj", "src/Services/FileStorage/Outclass.FileStorage.Infrastructure/"]

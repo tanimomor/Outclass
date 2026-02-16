@@ -1,8 +1,8 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY ["src/Services/Automation/Outclass.Automation.API/Outclass.Automation.API.csproj", "src/Services/Automation/Outclass.Automation.API/"]
 COPY ["src/Services/Automation/Outclass.Automation.Infrastructure/Outclass.Automation.Infrastructure.csproj", "src/Services/Automation/Outclass.Automation.Infrastructure/"]
