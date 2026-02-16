@@ -1,0 +1,6 @@
+@Outclass.Gateway_HostAddress = http://localhost:5194
+
+GET {{Outclass.Gateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

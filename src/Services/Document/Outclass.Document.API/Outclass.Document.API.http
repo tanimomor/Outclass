@@ -1,0 +1,6 @@
+@Outclass.Document.API_HostAddress = http://localhost:5070
+
+GET {{Outclass.Document.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

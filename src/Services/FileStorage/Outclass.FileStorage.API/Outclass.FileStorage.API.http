@@ -1,0 +1,6 @@
+@Outclass.FileStorage.API_HostAddress = http://localhost:5070
+
+GET {{Outclass.FileStorage.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

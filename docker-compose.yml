@@ -1,0 +1,188 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: outclass-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: outclass
+      POSTGRES_PASSWORD: outclass123
+      POSTGRES_DB: outclass_identity # Default DB
+    volumes:
+      - ./infra/init-db:/docker-entrypoint-initdb.d
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - outclass-network
+
+  redis:
+    image: redis:alpine
+    container_name: outclass-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - outclass-network
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: outclass-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - outclass-network
+
+  identity-service:
+    build:
+      context: .
+      dockerfile: src/Services/Identity/Outclass.Identity.API/Dockerfile
+    container_name: outclass-identity
+    environment:
+      - ConnectionStrings__Database=Host=postgres;Port=5432;Database=outclass_identity;Username=outclass;Password=outclass123
+      - ConnectionStrings__Redis=redis:6379
+      - RabbitMQ__Host=rabbitmq
+      - ASPNETCORE_HTTP_PORTS=8080
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - outclass-network
+
+  tenant-service:
+    build:
+      context: .
+      dockerfile: src/Services/Tenant/Outclass.Tenant.API/Dockerfile
+    container_name: outclass-tenant
+    environment:
+      - ConnectionStrings__Database=Host=postgres;Port=5432;Database=outclass_tenant;Username=outclass;Password=outclass123
+      - ConnectionStrings__Redis=redis:6379
+      - RabbitMQ__Host=rabbitmq
+      - ASPNETCORE_HTTP_PORTS=8080
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - outclass-network
+
+  metadata-service:
+    build:
+      context: .
+      dockerfile: src/Services/Metadata/Outclass.Metadata.API/Dockerfile
+    container_name: outclass-metadata
+    environment:
+      - ConnectionStrings__Database=Host=postgres;Port=5432;Database=outclass_metadata;Username=outclass;Password=outclass123
+      - ConnectionStrings__Redis=redis:6379
+      - RabbitMQ__Host=rabbitmq
+      - ASPNETCORE_HTTP_PORTS=8080
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - outclass-network
+
+  document-service:
+    build:
+      context: .
+      dockerfile: src/Services/Document/Outclass.Document.API/Dockerfile
+    container_name: outclass-document
+    environment:
+      - ConnectionStrings__Database=Host=postgres;Port=5432;Database=outclass_document;Username=outclass;Password=outclass123
+      - ConnectionStrings__Redis=redis:6379
+      - RabbitMQ__Host=rabbitmq
+      - ASPNETCORE_HTTP_PORTS=8080
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - outclass-network
+
+  workflow-service:
+    build:
+      context: .
+      dockerfile: src/Services/Workflow/Outclass.Workflow.API/Dockerfile
+    container_name: outclass-workflow
+    environment:
+      - ConnectionStrings__Database=Host=postgres;Port=5432;Database=outclass_workflow;Username=outclass;Password=outclass123
+      - ConnectionStrings__Redis=redis:6379
+      - RabbitMQ__Host=rabbitmq
+      - ASPNETCORE_HTTP_PORTS=8080
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - outclass-network
+
+  automation-service:
+    build:
+      context: .
+      dockerfile: src/Services/Automation/Outclass.Automation.API/Dockerfile
+    container_name: outclass-automation
+    environment:
+      - ConnectionStrings__Database=Host=postgres;Port=5432;Database=outclass_automation;Username=outclass;Password=outclass123
+      - ConnectionStrings__Redis=redis:6379
+      - RabbitMQ__Host=rabbitmq
+      - ASPNETCORE_HTTP_PORTS=8080
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - outclass-network
+
+  filestorage-service:
+    build:
+      context: .
+      dockerfile: src/Services/FileStorage/Outclass.FileStorage.API/Dockerfile
+    container_name: outclass-filestorage
+    environment:
+      - ConnectionStrings__Database=Host=postgres;Port=5432;Database=outclass_filestorage;Username=outclass;Password=outclass123
+      - ConnectionStrings__Redis=redis:6379
+      - RabbitMQ__Host=rabbitmq
+      - ASPNETCORE_HTTP_PORTS=8080
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - outclass-network
+
+  gateway:
+    build:
+      context: .
+      dockerfile: src/Gateway/Outclass.Gateway/Dockerfile
+    container_name: outclass-gateway
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address=http://identity-service:8080
+      - ReverseProxy__Clusters__tenant-cluster__Destinations__destination1__Address=http://tenant-service:8080
+      - ReverseProxy__Clusters__metadata-cluster__Destinations__destination1__Address=http://metadata-service:8080
+      - ReverseProxy__Clusters__document-cluster__Destinations__destination1__Address=http://document-service:8080
+      - ReverseProxy__Clusters__workflow-cluster__Destinations__destination1__Address=http://workflow-service:8080
+      - ReverseProxy__Clusters__automation-cluster__Destinations__destination1__Address=http://automation-service:8080
+      - ReverseProxy__Clusters__file-cluster__Destinations__destination1__Address=http://filestorage-service:8080
+    depends_on:
+      - identity-service
+      - tenant-service
+      - metadata-service
+      - document-service
+      - workflow-service
+      - automation-service
+      - filestorage-service
+    networks:
+      - outclass-network
+
+networks:
+  outclass-network:
+    driver: bridge
+
+volumes:
+  postgres-data:

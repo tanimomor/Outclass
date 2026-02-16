@@ -1,0 +1,6 @@
+@Outclass.Metadata.API_HostAddress = http://localhost:5008
+
+GET {{Outclass.Metadata.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
