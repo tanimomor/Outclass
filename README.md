@@ -13,8 +13,8 @@ Outclass is a production-grade, metadata-driven, multi-tenant low-code platform 
 ## Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Docker Engine + Compose
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (for local development)
-- [Node.js 20+](https://nodejs.org/) (for frontend)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (for local development)
+- [Node.js 24+](https://nodejs.org/) (for frontend)
 
 ## Getting Started
 
